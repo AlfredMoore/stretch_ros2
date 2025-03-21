@@ -565,8 +565,10 @@ def pull_camera_and_publish_images(node: Node, robot_sim: StretchMujocoSimulator
     t1 = time.time()
     camera_data = robot_sim.pull_camera_data()
     t2 = time.time()
-    node.get_logger().info(f"Time taken for camera rendering: {t2 - t1}")
+    #node.get_logger().info(f"Time taken for camera rendering: {t2 - t1}")
     
+    timestamp = node.get_clock().now().to_msg()
+
     # camera_data has cam_d405_rgb, cam_d405_depth, cam_d435i_rgb, cam_d435i_depth, cam_nav_rgb
     for cam_name, cam_publisher in node.camera_pub.items():
         if cam_name in camera_data.keys():
@@ -576,8 +578,12 @@ def pull_camera_and_publish_images(node: Node, robot_sim: StretchMujocoSimulator
                 img_msg = node.bridge.cv2_to_imgmsg(img, encoding="32FC1")  # Float32 depth
             else:
                 img_msg = node.bridge.cv2_to_imgmsg(cv2.cvtColor(img, cv2.COLOR_RGB2BGR), encoding="bgr8")
+            
+            img_msg.header.stamp = timestamp
+            img_msg.header.frame_id = cam_name
+            
             cam_publisher.publish(img_msg)
-            # node.get_logger().info(f"Published {cam_name}")
+            #node.get_logger().info(f"Published {cam_name}  with timestamp {img_msg.header.stamp}")
 
 
 
@@ -610,7 +616,7 @@ def main():
 
                 # node.get_logger().info(f"Joint State publishing period: {1.0 / node.joint_state_rate}")
                 # node.get_logger().info(f"####################################")
-                time.sleep(1/1000)
+                #time.sleep(1/1000)
     
             
         except KeyboardInterrupt:

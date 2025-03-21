@@ -515,16 +515,33 @@ def main(
 ) -> None:
     robot_sim = StretchMujocoSimulator(scene_xml_path)
     robot_sim.start(headless=headless)
+    flag = 0
     # display camera feeds
     try:
         while robot_sim.is_running():
             camera_data = robot_sim.pull_camera_data()
+            if flag == 0:
+                print("cam_d435i_K")
+                print(camera_data["cam_d435i_K"])
+                print(camera_data["cam_d435i_rgb"].shape)
+                print(camera_data["cam_d435i_depth"].shape)
+                
+                print("cam_d405_K")
+                print(camera_data["cam_d405_K"])
+                print(camera_data["cam_d405_rgb"].shape)
+                print(camera_data["cam_d405_depth"].shape)
+
+                flag = 1
+                
+            #print("good morning haha")
             cv2.imshow("cam_d405_rgb", cv2.cvtColor(camera_data["cam_d405_rgb"], cv2.COLOR_RGB2BGR))
             cv2.imshow("cam_d405_depth", camera_data["cam_d405_depth"])
+            #print(camera_data["cam_d405_depth"][300])
             cv2.imshow(
                 "cam_d435i_rgb", cv2.cvtColor(camera_data["cam_d435i_rgb"], cv2.COLOR_RGB2BGR)
             )
             cv2.imshow("cam_d435i_depth", camera_data["cam_d435i_depth"])
+            #print(np.max(camera_data["cam_d435i_depth"]))
             cv2.imshow("cam_nav_rgb", cv2.cvtColor(camera_data["cam_nav_rgb"], cv2.COLOR_RGB2BGR))
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 cv2.destroyAllWindows()
