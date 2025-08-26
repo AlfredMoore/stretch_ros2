@@ -72,6 +72,10 @@ bool QuestUdpSender::init_socket(const std::string& robot_ip, int port) {
     return true;
 }
 
+#ifdef _WIN32
+    typedef int ssize_t;
+#endif
+
 bool QuestUdpSender::sendJoystickData(float lx, float ly, float rx, float ry) {
     #ifdef _WIN32
         if (m_socket_fd == INVALID_SOCKET) return false;

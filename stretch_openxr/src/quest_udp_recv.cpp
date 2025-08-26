@@ -96,12 +96,21 @@ bool QuestUdpReceiver::receiveData(JoystickData& data) {
     struct sockaddr_in client_addr;
     
     // Receive data from the network
-    ssize_t bytes_received = recvfrom(m_socket_fd, 
-                                      reinterpret_cast<char*>(&data), 
-                                      sizeof(JoystickData), 
-                                      0, // Use MSG_DONTWAIT for non-blocking
-                                      (struct sockaddr*)&client_addr, 
-                                      &client_len);
-
+    #ifdef _WIN32
+        // ssize_t is not defined on Windows, use int for recvfrom return value
+        int bytes_received = recvfrom(m_socket_fd, 
+                                    reinterpret_cast<char*>(&data), 
+                                    sizeof(JoystickData), 
+                                    0, 
+                                    (struct sockaddr*)&client_addr, 
+                                    &client_len);
+    #else
+        ssize_t bytes_received = recvfrom(m_socket_fd, 
+                                        reinterpret_cast<char*>(&data), 
+                                        sizeof(JoystickData), 
+                                        0, 
+                                        (struct sockaddr*)&client_addr, 
+                                        &client_len);
+    #endif
     return bytes_received == sizeof(JoystickData); // No data or incomplete data received
 }
